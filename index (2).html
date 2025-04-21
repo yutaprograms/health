@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teen Wellness Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-color: #8338EC;
+            --secondary-color: #C8B6FF;
+            --accent-color: #FFCFD2;
+            --text-color: #FB5607;
+            --light-color: #F7F4FF;
+            --dark-color: #291B4A;
+            --success-color: #06D6A0;
+            --warning-color: #FFD166;
+            --danger-color: #EF476F;
+            --info-color: #118AB2;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            min-height: 100vh;
+            transition: background-color 1.5s ease;
+        }
+        
+        .theme-happy {
+            --primary-color: #FF9F1C;
+            --secondary-color: #FFBF69;
+            --accent-color: #CBF3F0;
+            --text-color: #2EC4B6;
+            --light-color: #FFFCF5;
+            --dark-color: #323031;
+        }
+        
+        .theme-sad {
+            --primary-color: #48CAE4;
+            --secondary-color: #90E0EF;
+            --accent-color: #CAF0F8;
+            --text-color: #023E8A;
+            --light-color: #F0FAFF;
+            --dark-color: #03045E;
+        }
+        
+        .theme-angry {
+            --primary-color: #E63946;
+            --secondary-color: #FF758F;
+            --accent-color: #FFCCD5;
+            --text-color: #D00000;
+            --light-color: #FFF5F5;
+            --dark-color: #6A040F;
+        }
+        
+        .theme-energetic {
+            --primary-color: #FF006E;
+            --secondary-color: #FB5607;
+            --accent-color: #FFBE0B;
+            --text-color: #3A86FF;
+            --light-color: #FFF3F9;
+            --dark-color: #240046;
+        }
+        
+        .theme-relaxed {
+            --primary-color: #06D6A0;
+            --secondary-color: #1B9AAA;
+            --accent-color: #EF476F;
+            --text-color: #073B4C;
+            --light-color: #F0FFF8;
+            --dark-color: #073B4C;
+        }
+        
+        /* Animation Classes */
+        .fade-in { animation: fadeIn 0.8s ease-in-out forwards; }
+        .slide-up { animation: slideUp 0.6s ease-in-out forwards; }
+        .slide-in-right { animation: slideInRight 0.6s ease-in-out forwards; }
+        .slide-in-left { animation: slideInLeft 0.6s ease-in-out forwards; }
+        .scale-in { animation: scaleIn 0.5s ease-in-out forwards; }
+        .pulse { animation: pulse 2s infinite; }
+        .float { animation: float 3s ease-in-out infinite; }
+        
+        /* Keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideInLeft {
+            from { transform: translateX(-50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+            opacity: 0.7;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+        
+        /* Components */
+        .btn {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 500;
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+        }
+        
+        /* Mood Components */
+        .mood-btn {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            background: white;
+            border: 2px solid rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mood-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        
+        .mood-btn.active {
+            border-color: var(--primary-color);
+            background-color: rgba(131, 56, 236, 0.1);
+            transform: scale(1.1);
+            box-shadow: 0 10px 25px rgba(131, 56, 236, 0.25);
+        }
+        
+        .mood-emoji {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .mood-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+        
+        .emotion-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.75rem;
+            background-color: rgba(131, 56, 236, 0.1);
+            color: var(--primary-color);
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .emotion-tag:hover {
+            background-color: rgba(131, 56, 236, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .emotion-tag.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        /* Custom Slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.1);
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        /* Navigation */
+        .nav-container {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .nav-item.active {
+            background: rgba(255,255,255,0.25);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* Page Sections */
+        .section {
+            display: none;
+            padding: 1rem;
+        }
+        
+        .section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="confetti-container"></div>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-container">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center mb-4 md:mb-0">
+                <div class="flex items-center justify-center w-10 h-10 bg-white rounded-full text-purple-600 mr-3">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h1 class="text-2xl font-bold">Mood Boost</h1>
+                <span class="ml-2 bg-yellow-400 text-xs text-yellow-900 py-1 px-2 rounded-full">TEEN</span>
+            </div>
+            <div class="flex flex-wrap justify-center space-x-2 md:space-x-4">
+                <button id="mood-nav" class="nav-item active">
+                    <i class="fas fa-smile-beam mr-2"></i> Vibe Check
+                </button>
+                <button id="journal-nav" class="nav-item">
+                    <i class="fas fa-book mr-2"></i> Journal
+                </button>
+                <button id="habits-nav" class="nav-item">
+                    <i class="fas fa-tasks mr-2"></i> Habits
+                </button>
+                <button id="resources-nav" class="nav-item">
+                    <i class="fas fa-hands-helping mr-2"></i> Support
+                </button>
+                <button id="profile-nav" class="nav-item">
+                    <i class="fas fa-user-circle mr-2"></i> Profile
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <div class="container mx-auto py-6">
+        
+        <!-- Mood Tracker Section -->
+        <div id="mood-section" class="section active">
+            <div class="mb-6">
+                <div class="card p-4 fade-in">
+                    <div class="flex flex-col md:flex-row justify-between">
+                        <div>
+                            <h2 class="text-2xl font-semibold mb-2" style="color: var(--primary-color);">Hey there! How's your vibe today?</h2>
+                            <p class="text-gray-600">Tracking your mood helps you understand yourself better.</p>
+                        </div>
+                        <div class="flex items-center mt-3 md:mt-0">
+                            <div class="bg-purple-100 rounded-lg px-3 py-1 flex items-center">
+                                <i class="fas fa-fire text-orange-500 mr-1"></i>
+                                <span id="streak-count" class="font-semibold" style="color: var(--primary-color);">0</span>
+                                <span class="ml-1 text-gray-600 text-sm">day streak</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <!-- Mood Check In Card -->
+                <div class="card p-6 slide-in-left">
+                    <h2 class="text-xl font-semibold mb-4" style="color: var(--primary-color);">Today's Mood Check</h2>
+                    <div class="mb-6">
+                        <p class="text-md text-gray-600 mb-3">How are you feeling right now?</p>
+                        <div class="flex justify-between items-center mb-4">
+                            <button class="mood-btn" data-value="1" data-color="sad" data-theme="sad">
+                                <span class="mood-emoji">😞</span>
+                                <span class="mood-label">Awful</span>
+                            </button>
+                            <button class="mood-btn" data-value="2" data-color="sad" data-theme="sad">
+                                <span class="mood-emoji">😕</span>
+                                <span class="mood-label">Bad</span>
+                            </button>
+                            <button class="mood-btn" data-value="3" data-color="neutral" data-theme="neutral">
+                                <span class="mood-emoji">😐</span>
+                                <span class="mood-label">Okay</span>
+                            </button>
+                            <button class="mood-btn" data-value="4" data-color="happy" data-theme="happy">
+                                <span class="mood-emoji">🙂</span>
+                                <span class="mood-label">Good</span>
+                            </button>
+                            <button class="mood-btn" data-value="5" data-color="happy" data-theme="energetic">
+                                <span class="mood-emoji">😄</span>
+                                <span class="mood-label">Amazing</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-5">
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="text-md text-gray-600">Energy level:</p>
+                            <span id="energy-value" class="text-sm font-semibold" style="color: var(--primary-color);">5</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Low Battery</span>
+                            <input type="range" min="1" max="10" value="5" class="w-full mx-2" id="energy-level">
+                            <span class="text-xs text-gray-500">Supercharged</span>
+                        </div>
+                    </div>
+                    <div class="mb-5">
+                        <div class="flex justify-between items-center mb-2">
+                            <p class="text-md text-gray-600">Stress level:</p>
+                            <span id="stress-value" class="text-sm font-semibold" style="color: var(--danger-color);">5</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500">Chill</span>
+                            <input type="range" min="1" max="10" value="5" class="w-full mx-2" id="stress-level">
+                            <span class="text-xs text-gray-500">Overwhelmed</span>
+                        </div>
+                    </div>
+                    <div class="mb-5">
+                        <p class="text-md text-gray-600 mb-2">What emotions are you feeling?</p>
+                        <div id="emotions-container" class="flex flex-wrap">
+                            <div class="emotion-tag" data-emotion="joy">Joy 🎉</div>
+                            <div class="emotion-tag" data-emotion="peace">Peace ✌️</div>
+                            <div class="emotion-tag" data-emotion="love">Love ❤️</div>
+                            <div class="emotion-tag" data-emotion="anger">Anger 😠</div>
+                            <div class="emotion-tag" data-emotion="fear">Fear 😨</div>
+                            <div class="emotion-tag" data-emotion="anxiety">Anxiety 😰</div>
+                            <div class="emotion-tag" data-emotion="sadness">Sadness 😢</div>
+                            <div class="emotion-tag" data-emotion="guilt">Guilt 😓</div>
+                            <div class="emotion-tag" data-emotion="hope">Hope ✨</div>
+                            <div class="emotion-tag" data-emotion="excited">Excited 🔥</div>
+                            <div class="emotion-tag" data-emotion="bored">Bored 😴</div>
+                            <div class="emotion-tag" data-emotion="frustrated">Frustrated 😤</div>
+                        </div>
+                    </div>
+                    <div class="mb-5">
+                        <p class="text-md text-gray-600 mb-2">Quick note (optional):</p>
+                        <textarea id="mood-note" class="w-full border rounded-xl p-3 focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50" rows="2" placeholder="What's on your mind right now?"></textarea>
+                    </div>
+                    <button id="save-mood" class="btn w-full py-3">
+                        Save Check-In
+                    </button>
+                </div>
+                
+                <!-- Mood Trends Card -->
+                <div class="card p-6 slide-in-left" style="animation-delay: 0.1s">
+                    <h2 class="text-xl font-semibold mb-4" style="color: var(--primary-color);">Your Mood Journey</h2>
+                    <div class="bg-indigo-50 rounded-xl p-3 mb-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex space-x-1">
+                                <button class="mood-time-range px-2 py-1 rounded-lg text-xs bg-indigo-100 text-indigo-800 border border-indigo-200 hover:bg-indigo-200 active" data-range="week">7 Days</button>
+                                <button class="mood-time-range px-2 py-1 rounded-lg text-xs bg-white text-indigo-800 border border-indigo-200 hover:bg-indigo-200" data-range="month">30 Days</button>
+                                <button class="mood-time-range px-2 py-1 rounded-lg text-xs bg-white text-indigo-800 border border-indigo-200 hover:bg-indigo-200" data-range="year">Year</button>
+                            </div>
+                            <div class="flex items-center text-xs text-indigo-800">
+                                <i class="fas fa-chart-line mr-1"></i>
+                                <span>Trend: <span id="mood-trend">Neutral</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <canvas id="mood-chart" width="100%" height="200"></canvas>
+                    <div class="grid grid-cols-3 gap-2 mt-4">
+                        <div class="bg-green-50 p-3 rounded-lg text-center">
+                            <p class="text-green-800 font-bold text-xl" id="positive-percentage">0%</p>
+                            <p class="text-xs text-gray-600">Positive</p>
+                        </div>
+                        <div class="bg-yellow-50 p-3 rounded-lg text-center">
+                            <p class="text-yellow-800 font-bold text-xl" id="neutral-percentage">0%</p>
+                            <p class="text-xs text-gray-600">Neutral</p>
+                        </div>
+                        <div class="bg-red-50 p-3 rounded-lg text-center">
+                            <p class="text-red-800 font-bold text-xl" id="negative-percentage">0%</p>
+                            <p class="text-xs text-gray-600">Negative</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mood Insights Card -->
+                <div class="card p-6 slide-in-left" style="animation-delay: 0.2s">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold" style="color: var(--primary-color);">Mood Insights</h2>
+                        <div class="bg-purple-100 rounded-full w-8 h-8 flex items-center justify-center">
+                            <i class="fas fa-lightbulb" style="color: var(--primary-color);"></i>
+                        </div>
+                    </div>
+                    <div id="mood-insights" class="space-y-3">
+                        <div class="p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
+                            <div class="flex items-start">
+                                <div class="bg-blue-200 rounded-full p-2 mr-3">
+                                    <i class="fas fa-moon text-blue-800"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-md font-medium text-blue-800">Sleep Connection</h3>
+                                    <p class="text-sm text-gray-700" id="sleep-insight">Starting to track your sleep patterns will reveal how rest affects your mood.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl">
+                            <div class="flex items-start">
+                                <div class="bg-green-200 rounded-full p-2 mr-3">
+                                    <i class="fas fa-running text-green-800"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-md font-medium text-green-800">Exercise & Mood</h3>
+                                    <p class="text-sm text-gray-700" id="exercise-insight">Log activity in your habits to see how exercise impacts your daily mood.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl">
+                            <div class="flex items-start">
+                                <div class="bg-purple-200 rounded-full p-2 mr-3">
+                                    <i class="fas fa-users text-purple-800"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-md font-medium text-purple-800">Social Effect</h3>
+                                    <p class="text-sm text-gray-700" id="social-insight">Use journal entries to note social interactions and see their impact on your mood.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 border-t pt-4">
+                        <h3 class="text-md font-medium mb-2" style="color: var(--primary-color);">Achievement Progress</h3>
+                        <div class="flex items-center justify-between bg-yellow-50 p-3 rounded-xl">
+                            <div class="flex items-center">
+                                <div class="pulse bg-yellow-200 rounded-full p-2 mr-3">
+                                    <i class="fas fa-trophy text-yellow-800"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800" id="achievement-name">Starting Your Journey</p>
+                                    <p class="text-xs text-gray-600" id="achievement-desc">Complete your first mood check-in</p>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full" id="achievement-progress">0/1</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mood History Card -->
+            <div class="card p-6 fade-in" style="animation-delay: 0.3s">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold" style="color: var(--primary-color);">Your Recent Check-ins</h2>
+                    <div class="flex space-x-2">
+                        <button id="view-all-moods" class="px-3 py-1 text-sm bg-purple-100 hover:bg-purple-200 rounded-lg flex items-center" style="color: var(--primary-color);">
+                            <i class="fas fa-calendar-alt mr-1"></i> View All
+                        </button>
+                        <button id="export-mood" class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg flex items-center">
+                            <i class="fas fa-download mr-1"></i> Export
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="mood-entries-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-4 rounded-xl text-center" style="color: var(--primary-color);">
+                        <i class="fas fa-plus-circle text-5xl mb-2 opacity-30"></i>
+                        <p>No entries yet. Add your first check-in!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Journal Section -->
+        <div id="journal-section" class="section">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Journal Entry Form -->
+                <div class="card p-6">
+                    <h2 class="text-xl font-semibold mb-4" style="color: var(--primary-color);">New Journal Entry</h2>
+                    <form id="journal-form">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                            <input type="text" id="journal-title" class="w-full border rounded-xl p-3 focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50" placeholder="Name this entry..." required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Prompt (Optional)</label>
+                            <select id="journal-prompt" class="w-full border rounded-xl p-3 focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50">
+                                <option value="">Choose a prompt or write freely...</option>
+                                <option value="gratitude">What are three things you're grateful for today?</option>
+                                <option value="challenge">What challenged you today and how did you handle it?</option>
+                                <option value="learned">What did you learn about yourself today?</option>
+                                <option value="accomplish">What was your biggest accomplishment today?</option>
+                                <option value="tomorrow">What are you looking forward to tomorrow?</option>
+                                <option value="self-care">How did you practice self-care today?</option>
+                                <option value="growth">In what way did you grow or make progress today?</option>
+                                <option value="feelings">Express your feelings about something that happened today</option>
+                                <option value="worry">What's been on your mind lately that's causing stress?</option>
+                                <option value="highlight">What was the highlight of your day?</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Entry</label>
+                            <textarea id="journal-content" class="w-full border rounded-xl p-3 focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50" rows="8" placeholder="Write your thoughts here..." required></textarea>
+                        </div>
+                        <div class="mb-4 flex items-center">
+                            <label class="flex items-center cursor-pointer">
+                                <div class="relative">
+                                    <input type="checkbox" id="journal-private" class="sr-only" checked>
+                                    <div class="w-10 h-4 bg-gray-300 rounded-full shadow-inner"></div>
+                                    <div class="dot absolute w-6 h-6 bg-white rounded-full shadow -left-1 -top-1 transition-all"></div>
+                                </div>
+                                <div class="ml-3 text-gray-700 text-sm">Make this entry private (encrypted)</div>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn w-full">Save Journal Entry</button>
+                    </form>
+                </div>
+                
+                <!-- Journal Entries List -->
+                <div class="card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold" style="color: var(--primary-color);">Your Journal</h2>
+                        <div class="flex space-x-2">
+                            <div class="relative">
+                                <input type="text" id="journal-search" placeholder="Search entries..." class="pl-8 pr-4 py-1 text-sm border rounded-lg">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
+                            </div>
+                            <button id="export-journal" class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg flex items-center">
+                                <i class="fas fa-download mr-1"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="journal-list" class="space-y-2 max-h-96 overflow-y-auto">
+                        <div class="text-center p-6 text-gray-500">
+                            <i class="fas fa-book-open text-4xl mb-2 opacity-30"></i>
+                            <p>No journal entries yet. Write your first entry!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Journal View -->
+            <div class="card p-6 mt-6">
+                <h2 class="text-xl font-semibold mb-4" style="color: var(--primary-color);">Journal Entry</h2>
+                <div id="journal-view" class="min-h-[200px]">
+                    <div class="text-center p-6 text-gray-500">
+                        <i class="fas fa-file-alt text-4xl mb-2 opacity-30"></i>
+                        <p>Select an entry from the list to view it here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Habits Tracker Section -->
+        <div id="habits-section" class="section">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Habits Tracker -->
+                <div class="card p-6">
+                    <h2 class="text-xl font-semibold mb-4" style="color: var(--primary-color);">Healthy Habits Tracker</h2>
+                    
+                    <div id="habits-list" class="space-y-4 mb-6">
+                        <!-- Habits will be populated here -->
+                        <div class="text-center p-6 text-gray-500" id="no-habits-message">
+                            <i class="fas fa-tasks text-4xl mb-2 opacity-30"></i>
+                            <p>No habits added yet. Add your first habit below!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <h3 class="font-medium mb-3" style="color: var(--primary-color);">Add a new habit</h3>
+                        <div class="flex flex-col mb-4">
+                            <input type="text" id="new-habit-name" class="w-full border rounded-xl p-3 mb-2 focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50" placeholder="Habit name (e.g. Drink water, Exercise, Meditate)">
+                            <div class="flex space-x-2">
+                                <select id="new-habit-icon" class="flex-1 border rounded-xl p-3 focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50">
+                                    <option value="water">💧 Water</option>
+                                    <option value="exercise">🏃‍♂️ Exercise</option>
+                                    <option value="sleep">😴 Sleep</option>
+                                    <option value="meditation">🧘‍♀️ Meditation</option>
+                                    <option value="reading">📚 Reading</option>
+                                    <option value="gratitude">🙏 Gratitude</option>
+                                    <option value="nutrition">🥗 Nutrition</option>
+                                    <option value="social">👥 Social</option>
+                                    <option value="study">📝 Study</option>
+                                    <option value="outdoors">🌳 Outdoors</option>
+                                    <option value="creative">🎨 Creative</option>
+                                    <option value="digital">📵 Digital Detox</option>
+                                </select>
+                                <select id="new-habit-goal" class="flex-1 border rounded-xl p-3 focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50">
+                                    <option value="1">1 day/week</option>
+                                    <option value="2">2 days/week</option>
+                                    <option value="3">3 days/week</option>
+                                    <option value="4">4 days/week</option>
+                                    <option value="5">5 days/week</option>
+                                    <option value="6">6 days/week</option>
+                                    <option value="7" selected>Daily</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button id="add-habit" class="btn w-full">Add Habit</button>
+                    </div>
+                </div>
+                
+                <!-- Habit Insights -->
+                <div class="card p-6">
+                    <h2 class="text-xl font-semibold mb-4" style="color: var(--primary-color);">Habit Insights</h2>
+                    <div class="mb-4">
+                        <canvas id="habits-chart" width="100%" height="200"></canvas>
+                    </div>
+                    <div class="space-y-3 mt-4">
+                        <div class="p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
+                            <div class="flex items-start">
+                                <div class="bg-blue-200 rounded-full p-2 mr-3">
+                                    <i class="fas fa-trophy text-blue-800"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-md font-medium text-blue-800">Top Performing Habit</h3>
+                                    <p class="text-sm text-gray-700" id="top-habit">Start tracking habits to see your best performing one!</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl">
+                            <div class="flex items-start">
+                                <div class="bg-yellow-200 rounded-full p-2 mr-3">
+                                    <i class="fas fa-lightbulb text-yellow-800"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-md font-medium text-yellow-800">Improvement Opportunity</h3>
+                                    <p class="text-sm text-gray-700" id="improve-habit">Habits that need more consistency will appear here.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl">
+                            <div class="flex items-start">
+                                <div class="bg-green-200 rounded-full p-2 mr-3">
+                                    <i class="fas fa-fire text-green-800"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-md font-medium text-green-800">Current Streak</h3>
+                                    <p class="text-sm text-gray-700" id="streak-habit">Keep practicing your habits to build streaks!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Resources Section -->
+        <div id="resources-section" class="section">
+            <div class="card p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-2" style="color: var(--primary-color);">Support Resources</h2>
+                <p class="text-gray-600 mb-4">Here are some resources that might help if you're feeling overwhelmed or need someone to talk to.</p>
+                
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-red-500"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">If you need immediate help</h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <p>If you're in crisis or having thoughts of suicide, please call or text 988 to reach the National Suicide Prevention Lifeline. It's free, confidential, and available 24/7.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+                        <div class="p-4 bg-purple-50">
+                            <h3 class="font-semibold" style="color: var(--primary-color);">Crisis Text Line</h3>
+                        </div>
+                        <div class="p-4">
+                            <p class="text-sm text-gray-600 mb-2">Text HOME to 741741 to connect with a trained Crisis Counselor.</p>
+                            <p class="text-xs text-gray-500">Free 24/7 support for those in crisis</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+                        <div class="p-4 bg-blue-50">
+                            <h3 class="font-semibold text-blue-700">Teen Line</h3>
+                        </div>
+                        <div class="p-4">
+                            <p class="text-sm text-gray-600 mb-2">Call (800) TLC-TEEN or text "TEEN" to 839863.</p>
+                            <p class="text-xs text-gray-500">Teen-to-teen support from 6PM-10PM PST</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+                        <div class="p-4 bg-green-50">
+                            <h3 class="font-semibold text-green-700">Trevor Project</h3>
+                        </div>
+                        <div class="p-4">
+                            <p class="text-sm text-gray-600 mb-2">Call 1-866-488-7386 or text START to 678678.</p>
+                            <p class="text-xs text-gray-500">Crisis intervention for LGBTQ+ youth</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="card p-6">
+                    <h2 class="text-xl font-semibold mb-4" style="color: var(--primary-color);">Wellness Articles</h2>
+                    <div class="space-y-4">
+                        <div class="border-b pb-4">
+                            <h3 class="font-medium mb-1">Managing Stress During Exams</h3>
+                            <p class="text-sm text-gray-600">Learn effective techniques for managing stress and anxiety during exam periods.</p>
+                            <div class="mt-2 flex">
+                                <span class="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-800 mr-2">Stress</span>
+                                <span class="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-800 mr-2">School</span>
+                            </div>
+                        </div>
+                        <div class="border-b pb-4">
+                            <h3 class="font-medium mb-1">Building Healthy Friendships</h3>
+                            <p class="text-sm text-gray-600">Tips for developing supportive and positive relationships with peers.</p>
+                            <div class="mt-2 flex">
+                                <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800 mr-2">Relationships</span>
+                                <span class="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800 mr-2">Social</span>
+                            </div>
+                        </div>
+                        <div class="border-b pb-4">
+                            <h3 class="font-medium mb-1">Social Media and Mental Health</h3>
+                            <p class="text-sm text-gray-600">Understanding how social media affects your mood and strategies for healthy usage.</p>
+                            <div class="mt-2 flex">
+                                <span class="text-xs px-2 py-1 rounded-full bg-red-100 text-red-800 mr-2">Digital</span>
+                                <span class="text-xs px-2 py-1 rounded-full bg-indigo-100 text-indigo-800 mr-2">Wellness</span>
+                            </div>
+                        </div>
+                        <div class="pb-2">
+                            <h3 class="font-medium mb-1">Coping with Big Emotions</h3>
+                            <p class="text-sm text-gray-600">Strategies for navigating intense feelings in healthy ways.</p>
+                            <div class="mt-2 flex">
+                                <span class="text-xs px-2 py-1 rounded-full bg-purple-100 text-purple-800 mr-2">Emotions</span>
+                                <span class="text-xs px-2 py-1 rounded-full bg-pink-100 text-pink-800 mr-2">Self-Care</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card p-6">
+                    <h2 class="text-xl font-semibold mb-4" style="color: var(--primary-color);">Self-Care Tools</h2>
+                    <div class="space-y-4">
+                        <div class="border rounded-xl p-4 bg-gradient-to-r from-blue-50 to-purple-50">
+                            <h3 class="font-medium mb-1">Guided Breathing</h3>
+                            <p class="text-sm text-gray-600 mb-2">Follow simple breathing exercises to help calm your mind.</p>
+                            <button class="px-3 py-1 text-sm rounded-lg bg-white border border-purple-200 text-purple-800 hover:bg-purple-50">
+                                Try Now
+                            </button>
+                        </div>
+                        <div class="border rounded-xl p-4 bg-gradient-to-r from-green-50 to-teal-50">
+                            <h3 class="font-medium mb-1">5-Minute Meditation</h3>
+                            <p class="text-sm text-gray-600 mb-2">A quick guided meditation to help you reset and refocus.</p>
+                            <button class="px-3 py-1 text-sm rounded-lg bg-white border border-green-200 text-green-800 hover:bg-green-50">
+                                Try Now
+                            </button>
+                        </div>
+                        <div class="border rounded-xl p-4 bg-gradient-to-r from-yellow-50 to-amber-50">
+                            <h3 class="font-medium mb-1">Gratitude Exercise</h3>
+                            <p class="text-sm text-gray-600 mb-2">Practice gratitude with this simple guided activity.</p>
+                            <button class="px-3 py-1 text-sm rounded-lg bg-white border border-yellow-200 text-yellow-800 hover:bg-yellow-50">
+                                Try Now
+                            </button>
+                        </div>
+                        <div class="border rounded-xl p-4 bg-gradient-to-r from-pink-50 to-red-50">
+                            <h3 class="font-medium mb-1">Body Scan Relaxation</h3>
+                            <p class="text-sm text-gray-600 mb-2">A guided body scan to help release tension and promote relaxation.</p>
+                            <button class="px-3 py-1 text-sm rounded-lg bg-white border border-pink-200 text-pink-800 hover:bg-pink-50">
+                                Try Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Section -->
+        <div id="profile-section" class="section">
+            <div class="card overflow-hidden mb-6">
+                <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 relative">
+                    <div class="absolute top-4 right-4">
+                        <button class="bg-white bg-opacity-20 text-white p-2 rounded-full hover:bg-opacity-30">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-3">
+                            <span class="text-3xl" style="color: var(--primary-color);">TW</span>
+                        </div>
+                        <h2 class="text-xl font-semibold">Teen Wellness User</h2>
+                        <p class="opacity-80 text-sm">@teenwellness</p>
+                        <div class="mt-4 flex space-x-6 text-center">
+                            <div>
+                                <div class="text-2xl font-bold" id="profile-streak">0</div>
+                                <div class="text-xs opacity-80">Day Streak</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold" id="profile-entries">0</div>
+                                <div class="text-xs opacity-80">Entries</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold" id="profile-habits">0</div>
+                                <div class="text-xs opacity-80">Habits</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="font-semibold mb-3" style="color: var(--primary-color);">App Usage</h3>
+                    <canvas id="usage-chart" width="100%" height="150"></canvas>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="card p-6">
+                    <h2 class="text-xl font-semibold mb-4" style="color: var(--primary-color);">Account Settings</h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center border-b pb-3">
+                            <div>
+                                <h3 class="font-medium">Notifications</h3>
+                                <p class="text-sm text-gray-600">Get reminders for check-ins and habits</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" value="" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex justify-between items-center border-b pb-3">
+                            <div>
+                                <h3 class="font-medium">Dark Mode</h3>
+                                <p class="text-sm text-gray-600">Switch to dark theme</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" value="" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex justify-between items-center border-b pb-3">
+                            <div>
+                                <h3 class="font-medium">Data Privacy</h3>
+                                <p class="text-sm text-gray-600">Encrypt all your personal data</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" value="" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                            </label>
+                        </div>
+                        <div class="pt-2">
+                            <button class="btn-outline px-3 py-2 text-sm rounded-lg w-full">
+                                Export All Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card p-6">
+                    <h2 class="text-xl font-semibold mb-4" style="color: var(--primary-color);">Achievement Badges</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="border rounded-xl p-3 text-center">
+                            <div class="w-16 h-16 mx-auto mb-2 bg-gray-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check-circle text-2xl opacity-30 text-gray-400"></i>
+                            </div>
+                            <h3 class="text-sm font-medium text-gray-700">First Check-in</h3>
+                            <p class="text-xs text-gray-500">Not earned yet</p>
+                        </div>
+                        <div class="border rounded-xl p-3 text-center">
+                            <div class="w-16 h-16 mx-auto mb-2 bg-gray-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-fire text-2xl opacity-30 text-gray-400"></i>
+                            </div>
+                            <h3 class="text-sm font-medium text-gray-700">7-Day Streak</h3>
+                            <p class="text-xs text-gray-500">Not earned yet</p>
+                        </div>
+                        <div class="border rounded-xl p-3 text-center">
+                            <div class="w-16 h-16 mx-auto mb-2 bg-gray-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-book text-2xl opacity-30 text-gray-400"></i>
+                            </div>
+                            <h3 class="text-sm font-medium text-gray-700">Journal Master</h3>
+                            <p class="text-xs text-gray-500">Not earned yet</p>
+                        </div>
+                        <div class="border rounded-xl p-3 text-center">
+                            <div class="w-16 h-16 mx-auto mb-2 bg-gray-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-tasks text-2xl opacity-30 text-gray-400"></i>
+                            </div>
+                            <h3 class="text-sm font-medium text-gray-700">Habit Builder</h3>
+                            <p class="text-xs text-gray-500">Not earned yet</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <button class="text-sm text-purple-600">View All Achievements</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App Data Structure
+        const appData = {
+            user: {
+                name: "Teen Wellness User",
+                username: "teenwellness",
+                streak: 0,
+                theme: "neutral",
+                achievements: []
+            },
+            mood: {
+                entries: [],
+                currentMood: null,
+                currentEnergy: 5,
+                currentStress: 5,
+                currentEmotions: [],
+                currentNote: ""
+            },
+            journal: {
+                entries: []
+            },
+            habits: {
+                items: []
+            }
+        };
+        
+        // DOM Elements
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('.section');
+        const moodBtns = document.querySelectorAll('.mood-btn');
+        const energySlider = document.getElementById('energy-level');
+        const energyValue = document.getElementById('energy-value');
+        const stressSlider = document.getElementById('stress-level');
+        const stressValue = document.getElementById('stress-value');
+        const emotionTags = document.querySelectorAll('.emotion-tag');
+        const moodNote = document.getElementById('mood-note');
+        const saveMoodBtn = document.getElementById('save-mood');
+        const moodEntriesContainer = document.getElementById('mood-entries-container');
+        const journalForm = document.getElementById('journal-form');
+        const journalList = document.getElementById('journal-list');
+        const journalView = document.getElementById('journal-view');
+        const habitsList = document.getElementById('habits-list');
+        const addHabitBtn = document.getElementById('add-habit');
+        
+        // Navigation
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Set active nav item
+                navItems.forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show corresponding section
+                const targetId = this.id.replace('-nav', '-section');
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === targetId) {
+                        section.classList.add('active');
+                    }
+                });
+            });
+        });
+        
+        // Theme Switching
+        function setTheme(theme) {
+            document.body.className = '';
+            document.body.classList.add(`theme-${theme}`);
+            appData.user.theme = theme;
+            
+            // Update CSS variables
+            const root = document.documentElement;
+            if (theme === 'happy') {
+                root.style.setProperty('--primary-color', '#FF9F1C');
+            } else if (theme === 'sad') {
+                root.style.setProperty('--primary-color', '#48CAE4');
+            } else if (theme === 'angry') {
+                root.style.setProperty('--primary-color', '#E63946');
+            } else if (theme === 'energetic') {
+                root.style.setProperty('--primary-color', '#FF006E');
+            } else if (theme === 'relaxed') {
+                root.style.setProperty('--primary-color', '#06D6A0');
+            } else {
+                // Neutral theme
+                root.style.setProperty('--primary-color', '#8338EC');
+            }
+        }
+        
+        // Mood Selection
+        moodBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Reset all buttons
+                moodBtns.forEach(b => b.classList.remove('active'));
+                
+                // Set active button
+                this.classList.add('active');
+                
+                // Store mood value
+                appData.mood.currentMood = {
+                    value: parseInt(this.dataset.value),
+                    label: this.querySelector('.mood-label').textContent,
+                    emoji: this.querySelector('.mood-emoji').textContent
+                };
+                
+                // Change theme based on mood
+                if (this.dataset.theme) {
+                    setTheme(this.dataset.theme);
+                }
+            });
+        });
+        
+        // Energy Level Slider
+        energySlider.addEventListener('input', function() {
+            energyValue.textContent = this.value;
+            appData.mood.currentEnergy = parseInt(this.value);
+        });
+        
+        // Stress Level Slider
+        stressSlider.addEventListener('input', function() {
+            stressValue.textContent = this.value;
+            appData.mood.currentStress = parseInt(this.value);
+        });
+        
+        // Emotion Tags
+        emotionTags.forEach(tag => {
+            tag.addEventListener('click', function() {
+                this.classList.toggle('active');
+                
+                const emotion = this.dataset.emotion;
+                if (this.classList.contains('active')) {
+                    if (!appData.mood.currentEmotions.includes(emotion)) {
+                        appData.mood.currentEmotions.push(emotion);
+                    }
+                } else {
+                    appData.mood.currentEmotions = appData.mood.currentEmotions.filter(e => e !== emotion);
+                }
+            });
+        });
+        
+        // Save Mood Entry
+        saveMoodBtn.addEventListener('click', function() {
+            if (!appData.mood.currentMood) {
+                alert('Please select a mood first!');
+                return;
+            }
+            
+            // Create new entry
+            const newEntry = {
+                id: Date.now(),
+                date: new Date(),
+                mood: appData.mood.currentMood,
+                energy: appData.mood.currentEnergy,
+                stress: appData.mood.currentStress,
+                emotions: [...appData.mood.currentEmotions],
+                note: moodNote.value
+            };
+            
+            // Add to entries array
+            appData.mood.entries.unshift(newEntry);
+            
+            // Update UI
+            updateMoodEntries();
+            updateMoodChart();
+            updateMoodStats();
+            increaseStreak();
+            showConfetti();
+            
+            // Reset form
+            resetMoodForm();
+            
+            // Show success message
+            showToast('Mood saved successfully!');
+        });
+        
+        function resetMoodForm() {
+            moodBtns.forEach(btn => btn.classList.remove('active'));
+            appData.mood.currentMood = null;
+            energySlider.value = 5;
+            energyValue.textContent = "5";
+            appData.mood.currentEnergy = 5;
+            stressSlider.value = 5;
+            stressValue.textContent = "5";
+            appData.mood.currentStress = 5;
+            emotionTags.forEach(tag => tag.classList.remove('active'));
+            appData.mood.currentEmotions = [];
+            moodNote.value = "";
+            appData.mood.currentNote = "";
+        }
+        
+        function updateMoodEntries() {
+            // Clear container first
+            moodEntriesContainer.innerHTML = '';
+            
+            if (appData.mood.entries.length === 0) {
+                moodEntriesContainer.innerHTML = `
+                    <div class="p-4 rounded-xl text-center" style="color: var(--primary-color);">
+                        <i class="fas fa-plus-circle text-5xl mb-2 opacity-30"></i>
+                        <p>No entries yet. Add your first check-in!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Only show last 3 entries in main view
+            const entries = appData.mood.entries.slice(0, 3);
+            
+            entries.forEach(entry => {
+                let moodColor = 'green';
+                if (entry.mood.value <= 2) moodColor = 'red';
+                else if (entry.mood.value === 3) moodColor = 'yellow';
+                
+                const entryDate = new Date(entry.date);
+                const dateStr = entryDate.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric'
+                });
+                const timeStr = entryDate.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit'
+                });
+                
+                const entryEl = document.createElement('div');
+                entryEl.className = `bg-gradient-to-r from-${moodColor}-50 to-${moodColor}-100 p-4 rounded-xl`;
+                entryEl.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="text-${moodColor}-800 text-4xl mb-1">${entry.mood.emoji}</div>
+                            <p class="text-sm text-gray-700">${entry.mood.label}</p>
+                        </div>
+                        <div>
+                            <span class="text-xs text-gray-500">${dateStr} at ${timeStr}</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs text-gray-600">Energy</span>
+                            <span class="text-xs font-medium text-gray-800">${entry.energy}/10</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                            <div class="bg-${moodColor}-500 h-1.5 rounded-full" style="width: ${entry.energy * 10}%"></div>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs text-gray-600">Stress</span>
+                            <span class="text-xs font-medium text-gray-800">${entry.stress}/10</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                            <div class="bg-${moodColor}-500 h-1.5 rounded-full" style="width: ${entry.stress * 10}%"></div>
+                        </div>
+                    </div>
+                    ${entry.emotions.length > 0 ? `
+                        <div class="flex flex-wrap gap-1 mt-3">
+                            ${entry.emotions.map(emotion => `<span class="text-xs bg-white px-2 py-1 rounded-full text-${moodColor}-800">${emotion}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                    ${entry.note ? `
+                        <div class="mt-3 bg-white bg-opacity-50 p-2 rounded text-sm text-gray-700">
+                            "${entry.note}"
+                        </div>
+                    ` : ''}
+                `;
+                
+                moodEntriesContainer.appendChild(entryEl);
+            });
+        }
+        
+        // Journal Functionality
+        journalForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('journal-title').value;
+            const content = document.getElementById('journal-content').value;
+            const prompt = document.getElementById('journal-prompt').value;
+            const isPrivate = document.getElementById('journal-private').checked;
+            
+            // Create new entry
+            const newEntry = {
+                id: Date.now(),
+                date: new Date(),
+                title,
+                content,
+                prompt,
+                isPrivate
+            };
+            
+            // Add to entries array
+            appData.journal.entries.unshift(newEntry);
+            
+            // Update UI
+            updateJournalList();
+            
+            // Reset form
+            this.reset();
+            
+            // Show success message
+            showToast('Journal entry saved successfully!');
+        });
+        
+        function updateJournalList() {
+            // Clear list first
+            journalList.innerHTML = '';
+            
+            if (appData.journal.entries.length === 0) {
+                journalList.innerHTML = `
+                    <div class="text-center p-6 text-gray-500">
+                        <i class="fas fa-book-open text-4xl mb-2 opacity-30"></i>
+                        <p>No journal entries yet. Write your first entry!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            appData.journal.entries.forEach(entry => {
+                const entryDate = new Date(entry.date);
+                const dateStr = entryDate.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+                
+                const entryEl = document.createElement('div');
+                entryEl.className = 'journal-entry cursor-pointer hover:bg-gray-50';
+                entryEl.setAttribute('data-id', entry.id);
+                entryEl.innerHTML = `
+                    <div class="flex justify-between">
+                        <h3 class="font-medium">${entry.title}</h3>
+                        <div class="flex items-center">
+                            ${entry.isPrivate ? '<i class="fas fa-lock text-gray-400 text-xs mr-2"></i>' : ''}
+                            <span class="text-xs text-gray-500">${dateStr}</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 truncate mt-1">${entry.content}</p>
+                `;
+                
+                entryEl.addEventListener('click', function() {
+                    // Remove active class from all entries
+                    document.querySelectorAll('.journal-entry').forEach(el => el.classList.remove('active'));
+                    
+                    // Add active class to this entry
+                    this.classList.add('active');
+                    
+                    // Get entry ID
+                    const id = parseInt(this.getAttribute('data-id'));
+                    
+                    // Find entry in array
+                    const selectedEntry = appData.journal.entries.find(e => e.id === id);
+                    
+                    // Update journal view
+                    if (selectedEntry) {
+                        const entryDate = new Date(selectedEntry.date);
+                        const dateStr = entryDate.toLocaleDateString('en-US', { 
+                            weekday: 'long',
+                            month: 'long', 
+                            day: 'numeric',
+                            year: 'numeric'
+                        });
+                        
+                        let promptText = '';
+                        if (selectedEntry.prompt) {
+                            const promptOptions = {
+                                'gratitude': 'What are three things you\'re grateful for today?',
+                                'challenge': 'What challenged you today and how did you handle it?',
+                                'learned': 'What did you learn about yourself today?',
+                                'accomplish': 'What was your biggest accomplishment today?',
+                                'tomorrow': 'What are you looking forward to tomorrow?',
+                                'self-care': 'How did you practice self-care today?',
+                                'growth': 'In what way did you grow or make progress today?',
+                                'feelings': 'Express your feelings about something that happened today',
+                                'worry': 'What\'s been on your mind lately that\'s causing stress?',
+                                'highlight': 'What was the highlight of your day?'
+                            };
+                            
+                            const promptQuestion = promptOptions[selectedEntry.prompt] || '';
+                            if (promptQuestion) {
+                                promptText = `
+                                    <div class="bg-purple-50 p-3 rounded-lg mb-4">
+                                        <p class="text-sm text-purple-800">${promptQuestion}</p>
+                                    </div>
+                                `;
+                            }
+                        }
+                        
+                        journalView.innerHTML = `
+                            <div class="mb-4 flex justify-between items-center">
+                                <h3 class="text-xl font-semibold" style="color: var(--primary-color);">${selectedEntry.title}</h3>
+                                <div class="flex items-center">
+                                    ${selectedEntry.isPrivate ? '<i class="fas fa-lock text-gray-400 mr-2"></i>' : ''}
+                                    <span class="text-sm text-gray-500">${dateStr}</span>
+                                </div>
+                            </div>
+                            ${promptText}
+                            <div class="journal-content prose max-w-none">
+                                <p>${selectedEntry.content.replace(/\n/g, '<br>')}</p>
+                            </div>
+                            <div class="flex justify-end mt-4 space-x-2">
+                                <button class="px-3 py-1 text-sm bg-purple-100 hover:bg-purple-200 rounded-lg flex items-center" style="color: var(--primary-color);">
+                                    <i class="fas fa-pencil-alt mr-1"></i> Edit
+                                </button>
+                                <button class="px-3 py-1 text-sm bg-red-100 hover:bg-red-200 text-red-800 rounded-lg flex items-center">
+                                    <i class="fas fa-trash-alt mr-1"></i> Delete
+                                </button>
+                            </div>
+                        `;
+                    }
+                });
+                
+                journalList.appendChild(entryEl);
+            });
+            
+            // Update profile stats
+            document.getElementById('profile-entries').textContent = appData.journal.entries.length;
+        }
+        
+        // Habits Functionality
+        addHabitBtn.addEventListener('click', function() {
+            const habitName = document.getElementById('new-habit-name').value.trim();
+            const habitIcon = document.getElementById('new-habit-icon').value;
+            const habitGoal = parseInt(document.getElementById('new-habit-goal').value);
+            
+            if (!habitName) {
+                alert('Please enter a habit name!');
+                return;
+            }
+            
+            // Create emoji map
+            const emojiMap = {
+                'water': '💧',
+                'exercise': '🏃‍♂️',
+                'sleep': '😴',
+                'meditation': '🧘‍♀️',
+                'reading': '📚',
+                'gratitude': '🙏',
+                'nutrition': '🥗',
+                'social': '👥',
+                'study': '📝',
+                'outdoors': '🌳',
+                'creative': '🎨',
+                'digital': '📵'
+            };
+            
+            // Create new habit
+            const newHabit = {
+                id: Date.now(),
+                name: habitName,
+                icon: habitIcon,
+                emoji: emojiMap[habitIcon] || '✅',
+                goal: habitGoal,
+                created: new Date(),
+                streak: 0,
+                completed: [],
+                completedToday: false
+            };
+            
+            // Add to habits array
+            appData.habits.items.push(newHabit);
+            
+            // Update UI
+            updateHabitsList();
+            updateHabitsChart();
+            
+            // Reset form
+            document.getElementById('new-habit-name').value = '';
+            
+            // Show success message
+            showToast('New habit added successfully!');
+            
+            // Hide no habits message
+            document.getElementById('no-habits-message').style.display = 'none';
+        });
+        
+        function updateHabitsList() {
+            if (appData.habits.items.length === 0) {
+                document.getElementById('no-habits-message').style.display = 'block';
+                return;
+            } else {
+                document.getElementById('no-habits-message').style.display = 'none';
+            }
+            
+            // Get days of the week
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const today = new Date();
+            const todayIndex = today.getDay();
+            
+            // Sort days starting with today
+            const orderedDays = [...days.slice(todayIndex), ...days.slice(0, todayIndex)];
+            
+            // Clear list first (except no-habits-message)
+            const habitItems = habitsList.querySelectorAll(':not(#no-habits-message)');
+            habitItems.forEach(item => item.remove());
+            
+            appData.habits.items.forEach(habit => {
+                const habitEl = document.createElement('div');
+                habitEl.className = 'border rounded-xl p-4 shadow-sm';
+                
+                // Calculate completion rate
+                const completionRate = habit.completed.length > 0 ? 
+                    Math.round((habit.completed.length / 7) * 100) : 0;
+                
+                habitEl.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center mr-2" style="background-color: var(--primary-color); color: white;">
+                                ${habit.emoji}
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-gray-800">${habit.name}</h3>
+                                <div class="flex items-center">
+                                    <span class="text-xs text-gray-500">Goal: ${habit.goal} days/week</span>
+                                    <span class="mx-1 text-gray-400">•</span>
+                                    <span class="text-xs font-medium" style="color: var(--primary-color);">${completionRate}% complete</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="habit-toggle-btn p-2 rounded-lg hover:bg-gray-100" data-id="${habit.id}">
+                                <i class="fas ${habit.completedToday ? 'fa-check-circle text-green-500' : 'fa-circle text-gray-300'}"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="w-full bg-gray-200 rounded-full h-2 mb-3">
+                            <div class="h-2 rounded-full" style="width: ${completionRate}%; background-color: var(--primary-color);"></div>
+                        </div>
+                        <div class="flex justify-between">
+                            ${orderedDays.map((day, index) => {
+                                const isCompleted = habit.completed.includes(index);
+                                return `
+                                    <div class="text-center">
+                                        <div class="text-xs text-gray-500 mb-1">${day}</div>
+                                        <div class="w-6 h-6 mx-auto rounded-full flex items-center justify-center ${isCompleted ? 'bg-green-500 text-white' : 'bg-gray-200'}" 
+                                            data-habit="${habit.id}" data-day="${index}">
+                                            ${isCompleted ? '<i class="fas fa-check text-xs"></i>' : ''}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                habitsList.appendChild(habitEl);
+                
+                // Add event listener to toggle button
+                const toggleBtn = habitEl.querySelector('.habit-toggle-btn');
+                toggleBtn.addEventListener('click', function() {
+                    const habitId = parseInt(this.getAttribute('data-id'));
+                    const habit = appData.habits.items.find(h => h.id === habitId);
+                    
+                    if (habit) {
+                        habit.completedToday = !habit.completedToday;
+                        
+                        // Update the icon
+                        const icon = this.querySelector('i');
+                        if (habit.completedToday) {
+                            icon.className = 'fas fa-check-circle text-green-500';
+                            
+                            // Add today to completed days if not already there
+                            const todayIndex = new Date().getDay();
+                            if (!habit.completed.includes(todayIndex)) {
+                                habit.completed.push(todayIndex);
+                            }
+                            
+                            // Increment streak
+                            habit.streak++;
+                            showConfetti();
+                        } else {
+                            icon.className = 'fas fa-circle text-gray-300';
+                            
+                            // Remove today from completed days
+                            const todayIndex = new Date().getDay();
+                            habit.completed = habit.completed.filter(d => d !== todayIndex);
+                            
+                            // Reset streak
+                            habit.streak = 0;
+                        }
+                        
+                        // Update UI
+                        updateHabitsList();
+                        updateHabitsChart();
+                        updateHabitInsights();
+                    }
+                });
+            });
+            
+            // Update profile stats
+            document.getElementById('profile-habits').textContent = appData.habits.items.length;
+        }
+        
+        function updateHabitsChart() {
+            // Get the canvas element
+            const ctx = document.getElementById('habits-chart');
+            
+            // If no habits, show empty chart
+            if (appData.habits.items.length === 0) {
+                if (window.habitsChart) {
+                    window.habitsChart.destroy();
+                }
+                
+                window.habitsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['No habits yet'],
+                        datasets: [{
+                            label: 'Completion Rate',
+                            data: [0],
+                            backgroundColor: 'rgba(131, 56, 236, 0.2)',
+                            borderColor: 'rgba(131, 56, 236, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+                return;
+            }
+            
+            // Prepare data for chart
+            const labels = appData.habits.items.map(h => h.name);
+            const completionRates = appData.habits.items.map(h => {
+                if (h.completed.length === 0) return 0;
+                return Math.round((h.completed.length / h.goal) * 100);
+            });
+            
+            // If chart exists, update it
+            if (window.habitsChart) {
+                window.habitsChart.data.labels = labels;
+                window.habitsChart.data.datasets[0].data = completionRates;
+                window.habitsChart.update();
+            } else {
+                // Create new chart
+                window.habitsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Completion Rate',
+                            data: completionRates,
+                            backgroundColor: 'rgba(131, 56, 236, 0.2)',
+                            borderColor: 'rgba(131, 56, 236, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+            
+            updateHabitInsights();
+        }
+        
+        function updateHabitInsights() {
+            const topHabitEl = document.getElementById('top-habit');
+            const improveHabitEl = document.getElementById('improve-habit');
+            const streakHabitEl = document.getElementById('streak-habit');
+            
+            if (appData.habits.items.length === 0) {
+                topHabitEl.textContent = 'Start tracking habits to see your best performing one!';
+                improveHabitEl.textContent = 'Habits that need more consistency will appear here.';
+                streakHabitEl.textContent = 'Keep practicing your habits to build streaks!';
+                return;
+            }
+            
+            // Find top performing habit
+            const sortedByCompletion = [...appData.habits.items].sort((a, b) => {
+                const aRate = a.completed.length / a.goal;
+                const bRate = b.completed.length / b.goal;
+                return bRate - aRate;
+            });
+            
+            const topHabit = sortedByCompletion[0];
+            if (topHabit.completed.length > 0) {
+                const completionRate = Math.round((topHabit.completed.length / topHabit.goal) * 100);
+                topHabitEl.textContent = `${topHabit.name} is your best habit at ${completionRate}% completion rate!`;
+            } else {
+                topHabitEl.textContent = 'Start tracking your habits to see your performance!';
+            }
+            
+            // Find habit that needs improvement
+            const sortedByNeedImprovement = [...appData.habits.items].sort((a, b) => {
+                const aRate = a.completed.length / a.goal;
+                const bRate = b.completed.length / b.goal;
+                return aRate - bRate;
+            });
+            
+            const improveHabit = sortedByNeedImprovement[0];
+            if (improveHabit && improveHabit.completed.length < improveHabit.goal) {
+                const completionRate = Math.round((improveHabit.completed.length / improveHabit.goal) * 100);
+                improveHabitEl.textContent = `${improveHabit.name} is at ${completionRate}%. Try setting a specific time each day.`;
+            } else {
+                improveHabitEl.textContent = 'Great job! All habits are on track.';
+            }
+            
+            // Find habit with longest streak
+            const sortedByStreak = [...appData.habits.items].sort((a, b) => b.streak - a.streak);
+            const streakHabit = sortedByStreak[0];
+            
+            if (streakHabit && streakHabit.streak > 0) {
+                streakHabitEl.textContent = `You're on a ${streakHabit.streak}-day streak with ${streakHabit.name}! Keep it up!`;
+            } else {
+                streakHabitEl.textContent = 'Complete a habit today to start building a streak!';
+            }
+        }
+        
+        // Mood Chart
+        function updateMoodChart() {
+            // Get the canvas element
+            const ctx = document.getElementById('mood-chart');
+            
+            // If no mood entries, show empty chart
+            if (appData.mood.entries.length === 0) {
+                if (window.moodChart) {
+                    window.moodChart.destroy();
+                }
+                
+                window.moodChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['No data yet'],
+                        datasets: [{
+                            label: 'Mood',
+                            data: [0],
+                            backgroundColor: 'rgba(131, 56, 236, 0.2)',
+                            borderColor: 'rgba(131, 56, 236, 1)',
+                            borderWidth: 1,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 5
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+                return;
+            }
+            
+            // Sort entries by date
+            const sortedEntries = [...appData.mood.entries].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            // Get selected time range
+            const rangeBtn = document.querySelector('.mood-time-range.active');
+            const range = rangeBtn ? rangeBtn.dataset.range : 'week';
+            
+            let filteredEntries = sortedEntries;
+            const now = new Date();
+            
+            if (range === 'week') {
+                const weekAgo = new Date();
+                weekAgo.setDate(now.getDate() - 7);
+                filteredEntries = sortedEntries.filter(entry => new Date(entry.date) >= weekAgo);
+            } else if (range === 'month') {
+                const monthAgo = new Date();
+                monthAgo.setMonth(now.getMonth() - 1);
+                filteredEntries = sortedEntries.filter(entry => new Date(entry.date) >= monthAgo);
+            } else if (range === 'year') {
+                const yearAgo = new Date();
+                yearAgo.setFullYear(now.getFullYear() - 1);
+                filteredEntries = sortedEntries.filter(entry => new Date(entry.date) >= yearAgo);
+            }
+            
+            // Format dates for display
+            const labels = filteredEntries.map(entry => {
+                const date = new Date(entry.date);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+            
+            const moodData = filteredEntries.map(
